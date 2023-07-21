@@ -1,0 +1,4 @@
+../Core/Src/system.c:26:6:ParseLoRaData	224	static
+../Core/Src/system.c:111:6:initLoRa	16	static
+../Core/Src/system.c:150:6:initLoRaT	16	static
+../Core/Src/system.c:189:6:loraRecevice	8	static

@@ -36,7 +36,6 @@
 #include <string.h>
 #include <usart.h>
 #include "gps.h"
-#include "def.h"
 
 
 
@@ -46,7 +45,7 @@ uint8_t rx_buffer[GPSBUFSIZE];
 uint8_t rx_index = 0;
 
 GPS_t GPS;
-Gps gps;
+
 
 
 void GPS_Init()
@@ -65,11 +64,11 @@ void GPS_CallBack(){
 		rx_index = 0;
 		memset(rx_buffer, 0, sizeof(rx_buffer));
 	}
-    gps.utc_time = GPS.utc_time;
-	gps.latitude = GPS.dec_latitude;
-	gps.longtitude = GPS.dec_longitude;
-	gps.altitude = GPS.msl_altitude;
-	gps.sat = GPS.satelites;
+//    gps.utc_time = GPS.utc_time;
+//	gps.latitude = GPS.dec_latitude;
+//	gps.longtitude = GPS.dec_longitude;
+//	gps.altitude = GPS.msl_altitude;
+//	gps.sat = GPS.satelites;
     
 	HAL_UART_Receive_IT(GPS_USART, &rx_data, 1);
 }
@@ -114,24 +113,24 @@ int GPS_validate(char *nmeastr){
 }
 
 void GPS_parse(char *GPSstrParse){
-    if(!strncmp(GPSstrParse, "$GPGGA", 6)){
-    	if (sscanf(GPSstrParse, "$GPGGA,%f,%f,%c,%f,%c,%d,%d,%f,%f,%c", &GPS.utc_time, &GPS.nmea_latitude, &GPS.ns, &GPS.nmea_longitude, &GPS.ew, &GPS.lock, &GPS.satelites, &GPS.hdop, &GPS.msl_altitude, &GPS.msl_units) >= 1){
+    if(!strncmp(GPSstrParse, "$GNVTG", 6)){
+    	if (sscanf(GPSstrParse, "$GNVTG,%f,%f,%c,%f,%c,%d,%d,%f,%f,%c", &GPS.utc_time, &GPS.nmea_latitude, &GPS.ns, &GPS.nmea_longitude, &GPS.ew, &GPS.lock, &GPS.satelites, &GPS.hdop, &GPS.msl_altitude, &GPS.msl_units) >= 1){
     		GPS.dec_latitude = GPS_nmea_to_dec(GPS.nmea_latitude, GPS.ns);
     		GPS.dec_longitude = GPS_nmea_to_dec(GPS.nmea_longitude, GPS.ew);
     		return;
     	}
     }
-    else if (!strncmp(GPSstrParse, "$GPRMC", 6)){
-    	if(sscanf(GPSstrParse, "$GPRMC,%f,%f,%c,%f,%c,%f,%f,%d", &GPS.utc_time, &GPS.nmea_latitude, &GPS.ns, &GPS.nmea_longitude, &GPS.ew, &GPS.speed_k, &GPS.course_d, &GPS.date) >= 1)
+    else if (!strncmp(GPSstrParse, "$GNRMC", 6)){
+    	if(sscanf(GPSstrParse, "$GNRMC,%f,%f,%c,%f,%c,%f,%f,%d", &GPS.utc_time, &GPS.nmea_latitude, &GPS.ns, &GPS.nmea_longitude, &GPS.ew, &GPS.speed_k, &GPS.course_d, &GPS.date) >= 1)
     		return;
 
     }
-    else if (!strncmp(GPSstrParse, "$GPGLL", 6)){
-        if(sscanf(GPSstrParse, "$GPGLL,%f,%c,%f,%c,%f,%c", &GPS.nmea_latitude, &GPS.ns, &GPS.nmea_longitude, &GPS.ew, &GPS.utc_time, &GPS.gll_status) >= 1)
+    else if (!strncmp(GPSstrParse, "$GNGLL", 6)){
+        if(sscanf(GPSstrParse, "$GNGLL,%f,%c,%f,%c,%f,%c", &GPS.nmea_latitude, &GPS.ns, &GPS.nmea_longitude, &GPS.ew, &GPS.utc_time, &GPS.gll_status) >= 1)
             return;
     }
-    else if (!strncmp(GPSstrParse, "$GPVTG", 6)){
-        if(sscanf(GPSstrParse, "$GPVTG,%f,%c,%f,%c,%f,%c,%f,%c", &GPS.course_t, &GPS.course_t_unit, &GPS.course_m, &GPS.course_m_unit, &GPS.speed_k, &GPS.speed_k_unit, &GPS.speed_km, &GPS.speed_km_unit) >= 1)
+    else if (!strncmp(GPSstrParse, "$GPGSV", 6)){
+        if(sscanf(GPSstrParse, "$GPGSV,%f,%c,%f,%c,%f,%c,%f,%c", &GPS.course_t, &GPS.course_t_unit, &GPS.course_m, &GPS.course_m_unit, &GPS.speed_k, &GPS.speed_k_unit, &GPS.speed_km, &GPS.speed_km_unit) >= 1)
             return;
     }
 }

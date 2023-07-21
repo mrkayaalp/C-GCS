@@ -11,6 +11,11 @@
 #define	GPS_USART	&huart5
 #define GPSBUFSIZE  256       // GPS buffer size
 
+#include "def.h"
+
+
+
+
 typedef struct GPS_t{
 
     // calculated values
@@ -51,6 +56,13 @@ typedef struct GPS_t{
 #if (GPS_DEBUG == 1)
 void GPS_print(char *data);
 #endif
+
+
+
+extern GPS_t GPS;
+
+
+
 
 void GPS_Init();
 void GSP_USBPrint(char *data);

@@ -1,8 +1,5 @@
-../Core/Src/main.c:65:1:HAL_UART_RxCpltCallback	16	static
-../Core/Src/main.c:71:1:HAL_GPIO_EXTI_Callback	16	static
-../Core/Src/main.c:77:6:initLoRa	16	static
-../Core/Src/main.c:117:6:loraTransmit	24	static
-../Core/Src/main.c:129:6:loraRecevice	8	static
-../Core/Src/main.c:140:5:main	8	static
-../Core/Src/main.c:257:6:SystemClock_Config	88	static
-../Core/Src/main.c:302:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:67:1:HAL_UART_RxCpltCallback	16	static
+../Core/Src/main.c:73:1:HAL_GPIO_EXTI_Callback	16	static
+../Core/Src/main.c:90:5:main	8	static
+../Core/Src/main.c:213:6:SystemClock_Config	88	static
+../Core/Src/main.c:257:6:Error_Handler	4	static,ignoring_inline_asm

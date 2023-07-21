@@ -1,5 +1,7 @@
 {
   "files.associations": {
-    "gps.h": "c"
+    "gps.h": "c",
+    "stdint.h": "c",
+    "cstdint": "c"
   }
 }
