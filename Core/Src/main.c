@@ -40,6 +40,8 @@
 /* USER CODE BEGIN PD */
 
 uint8_t loraReceiveBuffer[41];
+extern LoRa myLoRa;
+extern LoRa myLoRaT;
 
 uint8_t rx_data1;
 uint8_t tx_data[] = {"patates"};
@@ -73,20 +75,25 @@ HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN)
 {
 
-  if (GPIO_PIN == PW2_DIO0_Pin)
-    loraRecevice();
-  else if (GPIO_PIN == PW1_DIO0_Pin)
-    loraRecevice();
+//  if (GPIO_PIN == PW1_DIO0_Pin){
+//	  ParseAkuLoRaData();
+//
+//  }
+//  else if (GPIO_PIN == PW2_DIO0_Pin){
+//    loraAkuRecevice();
+//  	ParseAkuLoRaData();
 
-  ParseLoRaData();
+  loraArtamRecevice();
+  ParseArtamLoRaData();
+ 
 }
 
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -123,7 +130,7 @@ int main(void)
   MX_UART5_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-  GPS_Init();
+  //GPS_Init();
   initLoRa();
   HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, 1);
   HAL_Delay(500);
@@ -136,10 +143,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // LoRa_transmit(&myLoRaT, tx_data, sizeof(tx_data), 1000);
-    // HAL_Delay(100);
-    // LoRa_transmit(&myLoRa, tx_data, sizeof(tx_data), 1000);
-    // HAL_Delay(10);
+//	HAL_UART_Transmit_IT(&huart7, "hello world \n", 12);
+//	HAL_Delay(500);
+    //LoRa_transmit(&myLoRaT, tx_data, sizeof(tx_data), 1000);
+    //HAL_Delay(100);
+    //LoRa_transmit(&myLoRa, tx_data, sizeof(tx_data), 1000);
+    //HAL_Delay(10);
 
     /*
       HAL_GPIO_WritePin(USER_LED1_GPIO_Port, USER_LED1_Pin, 1);
@@ -207,22 +216,22 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-   */
+  */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
@@ -233,8 +242,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -251,9 +261,9 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -265,14 +275,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

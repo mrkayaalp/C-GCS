@@ -11,7 +11,6 @@
 #define STEADY_WAITING_ALTITUDE 200
 #define STEADY_WAITING_TIME_SECONDS 1
 
-
 enum flight_state_enum
 {
     DEBUG_PROFILE_1,
@@ -25,7 +24,8 @@ enum flight_state_enum
     LANDED,
 };
 
-enum avionics_error_enum {
+enum avionics_error_enum
+{
     NO_ERROR,
     BAROMETER_ERROR,
     IMU_ERROR,
@@ -156,6 +156,26 @@ typedef struct Lenna
 {
     uint8_t tranmissionPercentage;
 } Lenna;
+
+typedef struct Aku
+{
+    float tick;
+    int16_t pckt_nmbr;
+    uint8_t flight_state_flag;
+    uint8_t stabilization_flag;
+    int16_t altitude;
+    float vertical_velocity;
+    float true_accel;
+    float yaw;
+    float pitch;
+    float roll;
+    float utc_time;
+    float latitude_TLC;
+    float longtitude_TLC;
+    float latitude_CTC;
+    float longtitude_CTC;
+    int8_t wifi_connection_flag;
+} Aku;
 
 typedef union
 {

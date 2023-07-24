@@ -1,8 +1,10 @@
 #include "system.h"
 #include "def.h"
 
-uint8_t LoraReceivePacket[41];
-uint8_t UART_Buffer[390];
+uint8_t LoraArtamReceivePacket[41];
+uint8_t LoraAkuReceivePacket[53];
+uint8_t ArUART_Buffer[390];
+uint8_t AkUART_Buffer[440];
 int16_t crc;
 enum avionics_error_enum avi_status;
 enum flight_state_enum flight_status;
@@ -16,6 +18,7 @@ float accelleration;
 float maxAccelleration;
 
 Gps gps;
+Aku aku;
 
 LoRa myLoRa;
 LoRa myLoRaT;
@@ -23,88 +26,190 @@ LoRa myLoRaT;
 u16_to_u8 converter16;
 float_to_u8 converter32;
 
-void ParseLoRaData()
+void ParseArtamLoRaData()
 {
-    // LoraReceivePacketi dizi olarak tanımlamammamışın
-    // Değişkenler için defdeki structları kullanabilirsin
 
-    crc = CRCCalculator(LoraReceivePacket, 39);
-    converter16.u8[0] = LoraReceivePacket[39];
-    converter16.u8[1] = LoraReceivePacket[40];
+    crc = CRCCalculator(LoraArtamReceivePacket, 39);
+    converter16.u8[0] = LoraArtamReceivePacket[39];
+    converter16.u8[1] = LoraArtamReceivePacket[40];
 
     if (crc == converter16.u16)
     {
-        avi_status = LoraReceivePacket[0];
-        flight_status = LoraReceivePacket[1];
+        avi_status = LoraArtamReceivePacket[0];
+        flight_status = LoraArtamReceivePacket[1];
 
-        converter16.u8[0] = LoraReceivePacket[2];
-        converter16.u8[1] = LoraReceivePacket[3];
+        converter16.u8[0] = LoraArtamReceivePacket[2];
+        converter16.u8[1] = LoraArtamReceivePacket[3];
         packet_number = converter16.u16;
 
-        bat_level = LoraReceivePacket[4];
+        bat_level = LoraArtamReceivePacket[4];
 
-        converter32.u8[0] = LoraReceivePacket[5];
-        converter32.u8[1] = LoraReceivePacket[6];
-        converter32.u8[2] = LoraReceivePacket[7];
-        converter32.u8[3] = LoraReceivePacket[8];
-        gps.utc_time = (float) converter32.u32;
+        converter32.u8[0] = LoraArtamReceivePacket[5];
+        converter32.u8[1] = LoraArtamReceivePacket[6];
+        converter32.u8[2] = LoraArtamReceivePacket[7];
+        converter32.u8[3] = LoraArtamReceivePacket[8];
+        gps.utc_time = (float)converter32.u32;
 
+        converter16.i16 = LoraArtamReceivePacket[9];
+        converter16.i16 = LoraArtamReceivePacket[10];
+        altitude.altitude = (float)converter16.i16;
 
+        converter16.i16 = LoraArtamReceivePacket[11];
+        converter16.i16 = LoraArtamReceivePacket[12];
+        altitude.maxAltitude = (float)converter16.i16;
 
-        converter16.i16 = LoraReceivePacket[9];
-        converter16.i16 = LoraReceivePacket[10];
-        altitude.altitude = (float) converter16.i16;
+        converter16.i16 = LoraArtamReceivePacket[13];
+        converter16.i16 = LoraArtamReceivePacket[14];
+        velocity.trueVelocity = (float)converter16.i16;
 
-        converter16.i16 = LoraReceivePacket[11];
-        converter16.i16 = LoraReceivePacket[12];
-        altitude.maxAltitude = (float) converter16.i16;
+        converter16.i16 = LoraArtamReceivePacket[15];
+        converter16.i16 = LoraArtamReceivePacket[16];
+        velocity.maxTrueVelocity = (float)converter16.i16;
 
-        converter16.i16 = LoraReceivePacket[13];
-        converter16.i16 = LoraReceivePacket[14];
-        velocity.trueVelocity = (float) converter16.i16;
-
-        converter16.i16 = LoraReceivePacket[15];
-        converter16.i16 = LoraReceivePacket[16];
-        velocity.maxTrueVelocity = (float) converter16.i16;
-
-        converter32.u8[0] = LoraReceivePacket[17];
-        converter32.u8[1] = LoraReceivePacket[18];
-        converter32.u8[2] = LoraReceivePacket[19];
-        converter32.u8[3] = LoraReceivePacket[20];
+        converter32.u8[0] = LoraArtamReceivePacket[17];
+        converter32.u8[1] = LoraArtamReceivePacket[18];
+        converter32.u8[2] = LoraArtamReceivePacket[19];
+        converter32.u8[3] = LoraArtamReceivePacket[20];
         accelleration = converter32.u32;
 
-        converter32.u8[0] = LoraReceivePacket[21];
-        converter32.u8[1] = LoraReceivePacket[22];
-        converter32.u8[2] = LoraReceivePacket[23];
-        converter32.u8[3] = LoraReceivePacket[24];
+        converter32.u8[0] = LoraArtamReceivePacket[21];
+        converter32.u8[1] = LoraArtamReceivePacket[22];
+        converter32.u8[2] = LoraArtamReceivePacket[23];
+        converter32.u8[3] = LoraArtamReceivePacket[24];
         maxAccelleration = converter32.u32;
 
-        converter32.u8[0] = LoraReceivePacket[25];
-        converter32.u8[1] = LoraReceivePacket[26];
-        converter32.u8[2] = LoraReceivePacket[27];
-        converter32.u8[3] = LoraReceivePacket[28];
+        converter32.u8[0] = LoraArtamReceivePacket[25];
+        converter32.u8[1] = LoraArtamReceivePacket[26];
+        converter32.u8[2] = LoraArtamReceivePacket[27];
+        converter32.u8[3] = LoraArtamReceivePacket[28];
         gps.latitude = converter32.u32;
 
-        converter32.u8[0] = LoraReceivePacket[29];
-        converter32.u8[1] = LoraReceivePacket[30];
-        converter32.u8[2] = LoraReceivePacket[31];
-        converter32.u8[3] = LoraReceivePacket[32];
+        converter32.u8[0] = LoraArtamReceivePacket[29];
+        converter32.u8[1] = LoraArtamReceivePacket[30];
+        converter32.u8[2] = LoraArtamReceivePacket[31];
+        converter32.u8[3] = LoraArtamReceivePacket[32];
         gps.longtitude = converter32.u32;
 
-        converter16.i16 = LoraReceivePacket[33];
-        converter16.i16 = LoraReceivePacket[34];
-        accel.x = (float) converter16.i16;
+        converter16.i16 = LoraArtamReceivePacket[33];
+        converter16.i16 = LoraArtamReceivePacket[34];
+        accel.x = (float)converter16.i16;
 
-        converter16.i16 = LoraReceivePacket[35];
-        converter16.i16 = LoraReceivePacket[36];
-        accel.y = (float) converter16.i16;
+        converter16.i16 = LoraArtamReceivePacket[35];
+        converter16.i16 = LoraArtamReceivePacket[36];
+        accel.y = (float)converter16.i16;
 
-        converter16.i16 = LoraReceivePacket[37];
-        converter16.i16 = LoraReceivePacket[38];
-        accel.z = (float) converter16.i16;
+        converter16.i16 = LoraArtamReceivePacket[37];
+        converter16.i16 = LoraArtamReceivePacket[38];
+        accel.z = (float)converter16.i16;
 
-        sprintf(UART_Buffer, "%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n", avi_status, flight_status, packet_number, bat_level, gps.utc_time, altitude.altitude, altitude.maxAltitude, velocity.trueVelocity, velocity.maxTrueVelocity, accelleration, maxAccelleration, gps.latitude, gps.longtitude, accel.x, accel.y, accel.z);
-        HAL_UART_Transmit(&huart7, UART_Buffer, strlen(UART_Buffer), 100);
+
+        sprintf(ArUART_Buffer, "%d,%d,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f \n", LoRa_getRSSI(&myLoRa),HAL_GetTick(), avi_status, flight_status, packet_number, bat_level, gps.utc_time, altitude.altitude, altitude.maxAltitude, velocity.trueVelocity, velocity.maxTrueVelocity, accelleration, maxAccelleration, gps.latitude, gps.longtitude, accel.x, accel.y, accel.z);
+        HAL_UART_Transmit_IT(&huart7, ArUART_Buffer, strlen(ArUART_Buffer));
+    }
+//    else
+//        //    {
+//        //     artamErrorLed();
+//        sprintf(ArUART_Buffer, "ARTAM crc error! \n");
+//
+////    HAL_UART_Transmit_IT(&huart7, ArUART_Buffer, strlen(ArUART_Buffer));
+//    //    }
+}
+
+void ParseAkuLoRaData()
+{
+    crc = CRCCalculator(LoraAkuReceivePacket, 51);
+    converter16.u8[0] = LoraAkuReceivePacket[51];
+    converter16.u8[1] = LoraAkuReceivePacket[52];
+
+    if (crc == converter16.u16 + 500)
+    {
+        converter32.u8[0] = LoraAkuReceivePacket[0];
+        converter32.u8[1] = LoraAkuReceivePacket[1];
+        converter32.u8[2] = LoraAkuReceivePacket[2];
+        converter32.u8[3] = LoraAkuReceivePacket[3];
+        aku.tick = converter32.u32;
+
+        converter16.u8[0] = LoraAkuReceivePacket[4];
+        converter16.u8[1] = LoraAkuReceivePacket[5];
+        aku.pckt_nmbr = (int16_t)converter16.i16;
+
+        aku.flight_state_flag = (int8_t)LoraAkuReceivePacket[6];
+        aku.stabilization_flag = (int8_t)LoraAkuReceivePacket[7];
+
+        converter16.u8[0] = LoraAkuReceivePacket[8];
+        converter16.u8[1] = LoraAkuReceivePacket[9];
+        aku.altitude = (int16_t)converter16.i16;
+
+        converter32.u8[0] = LoraAkuReceivePacket[10];
+        converter32.u8[1] = LoraAkuReceivePacket[11];
+        converter32.u8[2] = LoraAkuReceivePacket[12];
+        converter32.u8[3] = LoraAkuReceivePacket[13];
+        aku.vertical_velocity = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[14];
+        converter32.u8[1] = LoraAkuReceivePacket[15];
+        converter32.u8[2] = LoraAkuReceivePacket[16];
+        converter32.u8[3] = LoraAkuReceivePacket[17];
+        aku.true_accel = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[18];
+        converter32.u8[1] = LoraAkuReceivePacket[19];
+        converter32.u8[2] = LoraAkuReceivePacket[20];
+        converter32.u8[3] = LoraAkuReceivePacket[21];
+        aku.yaw = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[22];
+        converter32.u8[1] = LoraAkuReceivePacket[23];
+        converter32.u8[2] = LoraAkuReceivePacket[24];
+        converter32.u8[3] = LoraAkuReceivePacket[25];
+        aku.pitch = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[26];
+        converter32.u8[1] = LoraAkuReceivePacket[27];
+        converter32.u8[2] = LoraAkuReceivePacket[28];
+        converter32.u8[3] = LoraAkuReceivePacket[29];
+        aku.roll = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[30];
+        converter32.u8[1] = LoraAkuReceivePacket[31];
+        converter32.u8[2] = LoraAkuReceivePacket[32];
+        converter32.u8[3] = LoraAkuReceivePacket[33];
+        aku.utc_time = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[34];
+        converter32.u8[1] = LoraAkuReceivePacket[35];
+        converter32.u8[2] = LoraAkuReceivePacket[36];
+        converter32.u8[3] = LoraAkuReceivePacket[37];
+        aku.latitude_TLC = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[38];
+        converter32.u8[1] = LoraAkuReceivePacket[39];
+        converter32.u8[2] = LoraAkuReceivePacket[40];
+        converter32.u8[3] = LoraAkuReceivePacket[41];
+        aku.longtitude_TLC = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[42];
+        converter32.u8[1] = LoraAkuReceivePacket[43];
+        converter32.u8[2] = LoraAkuReceivePacket[44];
+        converter32.u8[3] = LoraAkuReceivePacket[45];
+        aku.latitude_CTC = converter32.u32;
+
+        converter32.u8[0] = LoraAkuReceivePacket[46];
+        converter32.u8[1] = LoraAkuReceivePacket[47];
+        converter32.u8[2] = LoraAkuReceivePacket[48];
+        converter32.u8[3] = LoraAkuReceivePacket[49];
+        aku.longtitude_CTC = converter32.u32;
+
+        aku.wifi_connection_flag = (int8_t)LoraAkuReceivePacket[50];
+
+        sprintf(AkUART_Buffer, "%f,%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n",aku.tick, aku.pckt_nmbr, aku.flight_state_flag, aku.stabilization_flag, aku.altitude, aku.vertical_velocity, aku.true_accel, aku.yaw, aku.pitch, aku.roll, aku.utc_time, aku.latitude_TLC, aku.longtitude_TLC, aku.latitude_CTC, aku.longtitude_CTC, aku.wifi_connection_flag);
+        // HAL_UART_Transmit(&huart7, AkUART_Buffer, strlen(AkUART_Buffer), 250);
+    }
+    else
+    {
+        //        akuErrorLed();
+        //        sprintf(AkUART_Buffer, "AKU crc error!");
+        //        HAL_UART_Transmit(&huart7, AkUART_Buffer, strlen(AkUART_Buffer), 250);
     }
 }
 
@@ -161,7 +266,7 @@ void initLoRaT()
 
     HAL_Delay(25);
 
-    myLoRaT.frequency = 433.663;         // default = 433 MHz
+    myLoRaT.frequency = 440.000;         // default = 433 MHz
     myLoRaT.spredingFactor = SF_7;       // default = SF_7
     myLoRaT.bandWidth = BW_500KHz;       // default = BW_125KHz
     myLoRaT.crcRate = CR_4_5;            // default = CR_4_5
@@ -186,7 +291,25 @@ void initLoRaT()
     HAL_Delay(25);
 }
 
-void loraRecevice()
+void loraArtamRecevice()
 {
-    LoRa_receive(&myLoRa, LoraReceivePacket, sizeof(LoraReceivePacket));
+    LoRa_receive(&myLoRa, LoraArtamReceivePacket, sizeof(LoraArtamReceivePacket));
+}
+
+void loraAkuRecevice()
+{
+    LoRa_receive(&myLoRaT, LoraAkuReceivePacket, sizeof(LoraAkuReceivePacket));
+}
+void artamErrorLed(void)
+{
+    HAL_GPIO_WritePin(USER_LED8_GPIO_Port, USER_LED8_Pin, 1);
+    HAL_Delay(100);
+    HAL_GPIO_WritePin(USER_LED8_GPIO_Port, USER_LED8_Pin, 0);
+}
+
+void akuErrorLed(void)
+{
+    HAL_GPIO_WritePin(USER_LED7_GPIO_Port, USER_LED7_Pin, 1);
+    HAL_Delay(100);
+    HAL_GPIO_WritePin(USER_LED7_GPIO_Port, USER_LED7_Pin, 0);
 }

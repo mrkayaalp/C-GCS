@@ -12,9 +12,12 @@
 
 extern Gps gps;
 
-void ParseLoRaData();
+void ParseArtamLoRaData();
 void initLoRa();
 void initLoRaT();
-void loraRecevice();
+void loraArtamRecevice();
+void loraAkuRecevice();
+void artamErrorLed();
+void akuErrorLed();
 
 #endif // SYSTEM_H
